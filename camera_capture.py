@@ -9,7 +9,7 @@ from PIL import Image
 # Threshold (how much a pixel has to change by to be marked as "changed")
 # Sensitivity (how many changed pixels before capturing an image)
 # ForceCapture (whether to force an image to be captured every forceCaptureTime seconds)
-threshold = 10
+threshold = 15 # 10
 sensitivity = 20
 forceCapture = True
 forceCaptureTime = 60 * 60 # Once an hour
@@ -44,7 +44,7 @@ def saveImage(width, height, diskSpaceToReserve):
     filename = "~/camera/capture-%04d%02d%02d-%02d%02d%02d.jpg" % (time.year, time.month, time.day, time.hour, time.minute, time.second)
     
     #subprocess.call("raspistill -w 1296 -h 972 -t 0 -e jpg -q 15 -o %s" % filename, shell=True)
-    subprocess.call("raspistill -w 1296 -h 972 -ex night -awb auto -ISO 400 -t 0 -e jpg -q 15 -o %s" % filename, shell=True)
+    subprocess.call("raspistill -nopreview -w %i -h %i -ex auto -awb auto -ISO 400 -t 0 -e jpg -q 80 -o %s" % saveWidth, saveHeight, filename, shell=True)
     
     print "Captured %s" % filename
 
