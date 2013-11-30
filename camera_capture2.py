@@ -54,7 +54,7 @@ def saveImage(width, height, diskSpaceToReserve):
     filename = filepath + "/" + filenamePrefix + "-%04d%02d%02d-%02d%02d%02d.jpg" % ( time.year, time.month, time.day, time.hour, time.minute, time.second)
 
     #run_cmd     = "raspistill -n -hf -ex auto -awb auto -ISO 400 -w %i -h %i -t 0 -e jpg -q 80 -o %s" % saveWidth, saveHeight, filename
-    run_cmd     = "raspistill -n -w %s -h %s -t %s -e jpg -q 80 -o %s" % saveWidth, saveHeight, timeout, filename
+    run_cmd     = "raspistill -n -w %s -h %s -t %s -e jpg -q 80 -o %s" % (saveWidth, saveHeight, timeout, filename)
 
     subprocess.call(run_cmd, shell=True)
 
