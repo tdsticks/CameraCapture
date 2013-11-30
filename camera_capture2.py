@@ -29,6 +29,7 @@ saveWidth = 1280
 saveHeight = 960
 diskSpaceToReserve = 40 * 1024 * 1024 # Keep 40 mb free on disk
 
+
 # Capture a small test image (for motion detection)
 def captureTestImage():
     command = "raspistill -w %s -h %s -t 0 -e bmp -o -" % (100, 75)
@@ -40,17 +41,28 @@ def captureTestImage():
     imageData.close()
     return im, buffer
 
+
 # Save a full size image to disk
 def saveImage(width, height, diskSpaceToReserve):
     keepDiskSpaceFree(diskSpaceToReserve)
     time = datetime.now()
-    
+
     filename = filepath + "/" + filenamePrefix + "-%04d%02d%02d-%02d%02d%02d.jpg" % ( time.year, time.month, time.day, time.hour, time.minute, time.second)
-    subprocess.call("raspistill -nopreview -hf -w 1296 -h 972 -t 0 -e jpg -q 15 -o %s" % filename, shell=True)
+    subprocess.call("raspistill -nopreview -hf -ex auto -awb auto -ISO 400 -w 1296 -h 972 -t 0 -e jpg -q 80 -o %s" % filename, shell=True)
 
     print "Captured %s" % filename
 
+
 # Keep free space above given level
+def keepDiskSpaceFree(bytesToReserve):
+    if (getFreeSpace() < bytesToReserve):
+        for filename in sorted(os.listdir(filepath + "/")):
+            if filename.startswith(filenamePrefix) and filename.endswith(".jpg"):
+                os.remove(filepath + "/" + filename)
+                print "Deleted %s to avoid filling disk" % filename
+                if (getFreeSpace() > bytesToReserve):
+                    return
+'''
 def keepDiskSpaceFree(bytesToReserve):
     if (getFreeSpace() < bytesToReserve):
         for filename in sorted(os.listdir(".")):
@@ -59,13 +71,16 @@ def keepDiskSpaceFree(bytesToReserve):
                 print "Deleted %s to avoid filling disk" % filename
                 if (getFreeSpace() > bytesToReserve):
                     return
+'''
+
 
 # Get available disk space
 def getFreeSpace():
     st = os.statvfs(".")
     du = st.f_bavail * st.f_frsize
     return du
-        
+       
+
 # Get first image
 image1, buffer1 = captureTestImage()
 
@@ -80,6 +95,7 @@ print "Pixel Threshold (How much)   = " + str(threshold)
 print "Sensitivity (changed Pixels) = " + str(sensitivity)
 print "File Path for Image Save     = " + filepath
 print "---------- Motion Capture File Activity --------------"
+
 
 while (True):
 
