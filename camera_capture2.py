@@ -18,21 +18,25 @@ from PIL import Image
 # ForceCapture   - (whether to force an image to be captured every forceCaptureTime seconds)
 # filepath       - location of folder to save photos
 # filenamePrefix - string that prefixes the file name for easier identification of files.
-threshold = 10
-sensitivity = 180
-forceCapture = True
-forceCaptureTime = 60 * 60 # Once an hour
-filepath = "~/camera"
-filenamePrefix = "capture"
+threshold               = 10
+sensitivity             = 180
+forceCapture            = True
+forceCaptureTime        = 60 * 60 # Once an hour
+filepath                = "~/camera"
+filenamePrefix          = "capture"
+
+# Camera Settings
+timeout                 = 500
+
 # File photo size settings
-saveWidth = 1280
-saveHeight = 960
-diskSpaceToReserve = 40 * 1024 * 1024 # Keep 40 mb free on disk
+saveWidth               = 1280
+saveHeight              = 960
+diskSpaceToReserve      = 40 * 1024 * 1024 # Keep 40 mb free on disk
 
 
 # Capture a small test image (for motion detection)
 def captureTestImage():
-    command = "raspistill -w %s -h %s -t 0 -e bmp -o -" % (100, 75)
+    command = "raspistill -n -w %i -h %i -t %i -e bmp -o -" % (100, 75, timeout)
     imageData = StringIO.StringIO()
     imageData.write(subprocess.check_output(command, shell=True))
     imageData.seek(0)
@@ -48,7 +52,11 @@ def saveImage(width, height, diskSpaceToReserve):
     time = datetime.now()
 
     filename = filepath + "/" + filenamePrefix + "-%04d%02d%02d-%02d%02d%02d.jpg" % ( time.year, time.month, time.day, time.hour, time.minute, time.second)
-    subprocess.call("raspistill -nopreview -hf -ex auto -awb auto -ISO 400 -w 1296 -h 972 -t 0 -e jpg -q 80 -o %s" % filename, shell=True)
+
+    #run_cmd     = "raspistill -n -hf -ex auto -awb auto -ISO 400 -w %i -h %i -t 0 -e jpg -q 80 -o %s" % saveWidth, saveHeight, filename
+    run_cmd     = "raspistill -n -w %i -h %i -t %i -e jpg -q 80 -o %s" % saveWidth, saveHeight, timeout, filename
+
+    subprocess.call(run_cmd, shell=True)
 
     print "Captured %s" % filename
 
@@ -62,16 +70,6 @@ def keepDiskSpaceFree(bytesToReserve):
                 print "Deleted %s to avoid filling disk" % filename
                 if (getFreeSpace() > bytesToReserve):
                     return
-'''
-def keepDiskSpaceFree(bytesToReserve):
-    if (getFreeSpace() < bytesToReserve):
-        for filename in sorted(os.listdir(".")):
-            if filename.startswith(fileNamePrefix) and filename.endswith(".jpg"):
-                os.remove(filename)
-                print "Deleted %s to avoid filling disk" % filename
-                if (getFreeSpace() > bytesToReserve):
-                    return
-'''
 
 
 # Get available disk space
